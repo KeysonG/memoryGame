@@ -10,6 +10,7 @@ function GameCtor(cardnumber){
 	this.scoreDOM = document.createElement("div");
 	this.highsScore = 0;
 	this.highScores = [];
+	this.gamePaused = false;
 
 }
 
@@ -76,31 +77,31 @@ generateCards: function(){
 
 	},
 	clickCard: function(){		
-			// this.secondClick=false;
 			for(var i =0; i<this.cards.length; i++){
 				this.cards[i].addEventListener("click", this.showCard);
 			}
+		
+	},
+	showCard: function(e){
 
-		},
-		showCard: function(e){
-
+		if(document.self.gamePaused === false){
 			document.self.firstCard = e.target;
 			e.target.style.background = e.target.bg;
+			
 			for(var i =0; i<document.self.cards.length; i++){
 				document.self.cards[i].removeEventListener("click", document.self.showCard);
 				document.self.cards[i].addEventListener("click", document.self.showSecondCard);
 			}
+		}
+	},
+	showSecondCard: function(e){
+		document.self.secondCard = e.target;
+		e.target.style.background = e.target.bg;
 
-		},
-		showSecondCard: function(e){
-			document.self.secondCard = e.target;
-
-			e.target.style.background = e.target.bg;
-
-			// same card 
-			if(document.self.firstCard === document.self.secondCard){
+		// same card 
+		if(document.self.firstCard === document.self.secondCard){
 				console.log("same card");
-			}
+		}
 		//Match
 		else if(document.self.firstCard.bg == document.self.secondCard.bg){
 			
@@ -123,7 +124,10 @@ generateCards: function(){
 
 		// not the same
 		else{
-			var turnback = setTimeout(function(){document.self.secondCard.style.background = "url(img/texture.jpg)"; document.self.firstCard.style.background = "url(img/texture.jpg)"}, 500);
+			document.self.gamePaused = true;
+			var turnback = setTimeout(function(){document.self.secondCard.style.background = "url(img/texture.jpg)"; document.self.firstCard.style.background = "url(img/texture.jpg)"; 
+				document.self.gamePaused = false;
+		}, 500);
 
 			for(var i=0; i<document.self.cards.length;i++){
 				document.self.cards[i].addEventListener("click", document.self.showCard);
@@ -136,14 +140,12 @@ generateCards: function(){
 
 		//check if finished
 		var checkAfterTurnBack = setTimeout(function(){
-			
+				
 			var finished =true;
 			for(var i=0; i<document.self.cards.length; i++){
-
 				if(document.self.cards[i].style.backgroundImage== "url(\"img/texture.jpg\")"){
-					finished = false;
-
-				}
+						finished = false;
+					}
 
 			}
 			if(finished){
@@ -155,50 +157,28 @@ generateCards: function(){
 					document.self.cards[i].style.transform = 'translateY('+r123+')';
 					document.self.cards[i].style.transform = 'rotate('+randomNumber+ 'deg)';
 				}
-				if(localStorage.getItem("highscores") !== null) {
+			if(localStorage.getItem("highscores") !== null) {
 				document.self.highScores = JSON.parse(localStorage.highscores);
-				} else {
-				document.self.highScores = [];
+			}else{
+					document.self.highScores = [];
 				}
-				alert("you won!!!!!!!! your score is " + document.self.score);
-				document.self.highScore = document.self.score;
-				document.self.highScores.push(document.self.highScore);
-				localStorage.setItem("highscores", JSON.stringify(document.self.highScores));
-				console.log(document.self.highScores);
-				document.self.generateHighScoreDOM();
-
-
-
-			}
-
-				// var highscores = document.createElement("div");
-				// document.body.appendChild(highscores);
-				// localStorage
-				// highscores.innerHTML ="<span>Highscores are </span>" + JSON.parse(localStorage.getItem("highScores"));
-				// highscores.id = "highscores"
-				
-				// var names = document.createElement("div");
-				// document.body.appendChild(names);
-				// names.id = "names"
-				// var name = prompt("whats your name");
-				// document.self.names.push(name);
-				// localStorage.setItem("names", JSON.stringify(document.self.names));
-				// names.innerHTML ="<span>Highscores are </span>" + localStorage.getItem("name");	
-				// document.self.highScores = JSON.parse(localStorage.getItem("highScores"));
-				// document.self.highScores.push(document.self.score);
-				// localStorage.setItem("highScores", JSON.stringify(document.self.highScores)
-						
+			alert("you won!!!!!!!! your score is " + document.self.score);
+			document.self.highScore = document.self.score;
+			document.self.highScores.push(document.self.highScore);
+			localStorage.setItem("highscores", JSON.stringify(document.self.highScores));
+			console.log(document.self.highScores);
+			document.self.generateHighScoreDOM();
+			
+			} //end of if finished
 		},500)
-		
-		
-	},
+	}, //end of show second cardd function
+
 	generateScoreDOM: function(){
-	var scoreDOM = this.scoreDOM;
-	scoreDOM.id = "highscoredom";
-	scoreDOM.innerHTML = " Your score is <strong>" + this.score + "</strong> <br> Keep your score as low as possible <br>" 
-	document.getElementsByClassName("container")[0].appendChild(scoreDOM);
+		var scoreDOM = this.scoreDOM;
+		scoreDOM.id = "highscoredom";
+		scoreDOM.innerHTML = " Your score is <strong>" + this.score + "</strong> <br> Keep your score as low as possible <br>" 
+		document.getElementsByClassName("container")[0].appendChild(scoreDOM);
 	},
-	
 	generateHighScoreDOM: function(){
 		var scoreDOM = this.scoreDOM;
 		scoreDOM.innerHTML += "<strong>highscores</strong><br>" + document.self.highScores;
@@ -222,3 +202,6 @@ var easy = 12;
 var medium = 16;
 var hard = 20;
 game(easy);
+
+var newGameBtn = document.getElementById("button");
+newGameBtn.onclick = function(){window.location.reload()};
