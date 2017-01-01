@@ -165,6 +165,7 @@ generateCards: function(){
 				document.self.highScores.push(document.self.highScore);
 				localStorage.setItem("highscores", JSON.stringify(document.self.highScores));
 				console.log(document.self.highScores);
+				document.self.generateHighScoreDOM();
 
 
 
@@ -193,9 +194,14 @@ generateCards: function(){
 	},
 	generateScoreDOM: function(){
 	var scoreDOM = this.scoreDOM;
-	scoreDOM.classList.add("highscoredom");
-	scoreDOM.innerHTML = " Your score is <strong>" + this.score + "</strong> <br> Keep your score as low as possible"
+	scoreDOM.id = "highscoredom";
+	scoreDOM.innerHTML = " Your score is <strong>" + this.score + "</strong> <br> Keep your score as low as possible <br>" 
 	document.getElementsByClassName("container")[0].appendChild(scoreDOM);
+	},
+	
+	generateHighScoreDOM: function(){
+		var scoreDOM = this.scoreDOM;
+		scoreDOM.innerHTML += "<strong>highscores</strong><br>" + document.self.highScores;
 	}
 
 }; //prototype end
