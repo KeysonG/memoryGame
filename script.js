@@ -6,7 +6,10 @@ function GameCtor(cardnumber){
 	this.secondClick = false;
 	this.bgnum = [];
 	this.randomArray=[];
-
+	this.score =0;
+	this.scoreDOM = document.createElement("div");
+	this.highsScore = 0;
+	this.highScores = [];
 
 }
 
@@ -38,10 +41,12 @@ var tempProto ={
     }
 
     this.randomArray= array;
-	},
+},
 
-	generateCards: function(){
-		for(var i =0; i<this.numOfCards/4; i++){
+generateCards: function(){
+	document.self = this; //making this object a global variable so I can access it within my eventListeners
+
+	for(var i =0; i<this.numOfCards/4; i++){
 				// bootstrap row
 				var cards = document.querySelector(".cards");
 				var row = document.createElement("div");
@@ -55,9 +60,7 @@ var tempProto ={
 				// card.bg = this.cardsimg[i];
 				row.appendChild(card);
 				this.cards.push(card);
-
 			}
-
 		}
 		for(var i=0; i<this.cards.length; i++){
 			this.cards[i].style.backgroundImage = "url(img/texture.jpg)";
@@ -70,17 +73,17 @@ var tempProto ={
 			this.cards[i].bg = "url(img/" + this.randomArray[i]+ ".jpg)"
 		}
 
-	},
-	clickCard: function(){
-		document.self = this;
 
+	},
+	clickCard: function(){		
 			// this.secondClick=false;
 			for(var i =0; i<this.cards.length; i++){
 				this.cards[i].addEventListener("click", this.showCard);
 			}
 
-	},
-	showCard: function(e){
+		},
+		showCard: function(e){
+
 			document.self.firstCard = e.target;
 			e.target.style.background = e.target.bg;
 			for(var i =0; i<document.self.cards.length; i++){
@@ -88,8 +91,8 @@ var tempProto ={
 				document.self.cards[i].addEventListener("click", document.self.showSecondCard);
 			}
 
-	},
-	showSecondCard: function(e){
+		},
+		showSecondCard: function(e){
 			document.self.secondCard = e.target;
 
 			e.target.style.background = e.target.bg;
@@ -126,13 +129,16 @@ var tempProto ={
 				document.self.cards[i].addEventListener("click", document.self.showCard);
 				document.self.cards[i].removeEventListener("click", document.self.showSecondCard);
 			}
+			document.self.score++;
+			document.self.generateScoreDOM(); //updating dom score element
+
 		}
 
 		//check if finished
 		var checkAfterTurnBack = setTimeout(function(){
-		
-		var finished =true;
-		for(var i=0; i<document.self.cards.length; i++){
+			
+			var finished =true;
+			for(var i=0; i<document.self.cards.length; i++){
 
 				if(document.self.cards[i].style.backgroundImage== "url(\"img/texture.jpg\")"){
 					finished = false;
@@ -142,25 +148,59 @@ var tempProto ={
 			}
 			if(finished){
 				for(var i=0; i<document.self.cards.length; i++){
-      				var randomNumber = Math.floor(Math.random() * 800) + 1
-      				var r123 = randomNumber + "px";
-      				console.log(r123);
-      				  document.self.cards[i].style.transform = 'scale(0.5)';
+					var randomNumber = Math.floor(Math.random() * 800) + 1
+					var r123 = randomNumber + "px";
+					document.self.cards[i].style.transform = 'scale(0.5)';
+					document.self.cards[i].style.transform = 'translateX('+r123+')';
+					document.self.cards[i].style.transform = 'translateY('+r123+')';
+					document.self.cards[i].style.transform = 'rotate('+randomNumber+ 'deg)';
+				}
+				if(localStorage.getItem("highscores") !== null) {
+				document.self.highScores = JSON.parse(localStorage.highscores);
+				} else {
+				document.self.highScores = [];
+				}
+				alert("you won!!!!!!!! your score is " + document.self.score);
+				document.self.highScore = document.self.score;
+				document.self.highScores.push(document.self.highScore);
+				localStorage.setItem("highscores", JSON.stringify(document.self.highScores));
+				console.log(document.self.highScores);
 
-      				document.self.cards[i].style.transform = 'translateX('+r123+')';
-      				document.self.cards[i].style.transform = 'translateY('+r123+')';
-      				document.self.cards[i].style.transform = 'rotate('+randomNumber+ 'deg)';
 
-  				}
-  				
-    		}			
-    	},500)
+
+			}
+
+				// var highscores = document.createElement("div");
+				// document.body.appendChild(highscores);
+				// localStorage
+				// highscores.innerHTML ="<span>Highscores are </span>" + JSON.parse(localStorage.getItem("highScores"));
+				// highscores.id = "highscores"
+				
+				// var names = document.createElement("div");
+				// document.body.appendChild(names);
+				// names.id = "names"
+				// var name = prompt("whats your name");
+				// document.self.names.push(name);
+				// localStorage.setItem("names", JSON.stringify(document.self.names));
+				// names.innerHTML ="<span>Highscores are </span>" + localStorage.getItem("name");	
+				// document.self.highScores = JSON.parse(localStorage.getItem("highScores"));
+				// document.self.highScores.push(document.self.score);
+				// localStorage.setItem("highScores", JSON.stringify(document.self.highScores)
+						
+		},500)
 		
-			
-		}
+		
+	},
+	generateScoreDOM: function(){
+	var scoreDOM = this.scoreDOM;
+	scoreDOM.classList.add("highscoredom");
+	scoreDOM.innerHTML = " Your score is <strong>" + this.score + "</strong> <br> Keep your score as low as possible"
+	document.getElementsByClassName("container")[0].appendChild(scoreDOM);
+	}
+
+}; //prototype end
 
 
-};
 
 GameCtor.prototype = tempProto;
 
